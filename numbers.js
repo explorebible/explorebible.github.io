@@ -9,19 +9,20 @@ window.pages["/numbers"] = function () {
     content.append("p")
         .classed("lead", true)
         .text("Where are certain numbers mentioned in the Bible? "
-            + "Hover over the bar below to see the pattern of each common number "
-            + "as it appears throughout the Bible (Genesis to Revelation).");
+            + "The lines below highlight the pattern of the common numbers "
+            + "as they appear throughout the Bible (Genesis to Revelation).");
 
     d3.text("kjv.txt", function (error, text) {
-        var i, letter, words, word, stop, numbers, a, z, A, Z, len, color, dots, info;
+        var i, letter, words, word, numbers, a, z, A, Z, len, color, svg;
 
         a = "a".charCodeAt(0);
         z = "z".charCodeAt(0);
         A = "A".charCodeAt(0);
         Z = "Z".charCodeAt(0);
-        stop = ["the", "and", "of", "to", "that", "in", "he", "shall", "unto", "for", "i", "his", "a", "they", "be", "is", "him", "not", "them"];
+        //stop = ["the", "and", "of", "to", "that", "in", "he", "shall", "unto", "for", "i", "his", "a", "they", "be", "is", "him", "not", "them"];
         numbers = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
-            "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty"];
+            "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty",
+            "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety", "hundred"];
         words = [];
         i = 0;
         while (i < text.length) {
@@ -44,22 +45,43 @@ window.pages["/numbers"] = function () {
                 letter = text.charCodeAt(i);
             }
         }
-        console.log(words);
-        color = d3.scale.category20();
-        info = d3.select("#content").append("h1").text("all numbers");
-        dots = d3.select("#content").append("svg").selectAll("rect")
+        //console.log(words);
+        color = d3.scale.category10();
+        numbers.forEach(function (d) { color(d); });
+        /*
+        d3.select("#content").append("h1").text("all numbers");
+        function drawNumber(number) {
+            d3.select(this).selectAll("rect")
+                .data(words).enter().append("rect")
+                .attr("width", 0.2)
+                .attr("height", 20)
+                //.attr("x", function (d, i) { return 6 * (i % 200); })
+                //.attr("y", function (d, i) { return 6 * Math.floor(i / 200); })
+                .attr("x", function (d, i) { return i / 5; })
+                .style("opacity", function (d) { return d === number ? 1 : 0; })
+                .style("fill", color);
+        }
+        d3.select("#content").append("svg").selectAll("g")
+                .data(numbers).enter().append("g")
+                .attr("transform", function (d, i) { return "translate(0," + 20 * i + ")"; })
+                .each(drawNumber);
+        */
+        svg = d3.select("#content").append("svg");
+        svg.selectAll("rect")
             .data(words).enter().append("rect")
             .attr("width", 0.2)
-            .attr("height", 20)
+            .attr("height", 10)
             //.attr("x", function (d, i) { return 6 * (i % 200); })
             //.attr("y", function (d, i) { return 6 * Math.floor(i / 200); })
             .attr("x", function (d, i) { return i / 5; })
-            .style("opacity", function (d) { return 1; })
-            .style("fill", color)
-            .on("mouseover", function (d) {
-                dots.style("opacity", function (dd) { return dd === d ? 1 : 0.1; });
-                info.text(d);
-            });
+            .attr("y", function (d) { return 20 + 20 * numbers.indexOf(d); })
+            //.style("opacity", function (d) { return d === number ? 1 : 0; })
+            .style("fill", color);
+        svg.selectAll("text")
+            .data(numbers).enter().append("text")
+            .attr("x", 0)
+            .attr("y", function (d, i) { return 20 + 20 * i; })
+            .text(function(d) { return d; });
         console.log("done!");
     });
 };
